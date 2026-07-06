@@ -11,10 +11,10 @@ export function Header({ activePage, onNav }: HeaderProps) {
 
   return (
     <header className="header">
-      <div className="header-logo">
+      <a className="header-logo" href={import.meta.env.BASE_URL}>
         <span className="header-logo-icon">🔍</span>
         <span className="header-logo-text">SNS <span>競合リサーチ</span></span>
-      </div>
+      </a>
 
       <nav className="header-nav">
         <button

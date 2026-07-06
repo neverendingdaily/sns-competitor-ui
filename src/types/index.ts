@@ -28,6 +28,8 @@ export interface SearchParams {
   query: string;
   queryType: QueryType;
   filters: SearchFilters;
+  /** このプラットフォームで取得する候補数の上限（0〜50）。未指定ならバックエンドの環境変数の既定値を使う。0を指定するとこのプラットフォームの検索をスキップする */
+  maxResults?: number;
 }
 
 export interface SearchFilters {
@@ -74,6 +76,19 @@ export const PLATFORM_META: PlatformMeta[] = [
 export function getPlatformMeta(platform: Platform): PlatformMeta {
   return PLATFORM_META.find(p => p.id === platform)!;
 }
+
+export type MaxResultsByPlatform = Record<Platform, number>;
+
+// バックエンドの環境変数（X_DISCOVERY_MAX_CANDIDATES等）の現在の既定値を
+// そのまま初期値として表示する。ユーザーがフィルターパネルから0〜50の範囲で
+// プラットフォームごとに上書きできる（backend README「maxResults」参照）。
+export const DEFAULT_MAX_RESULTS: MaxResultsByPlatform = {
+  x: 10,
+  instagram: 10,
+  threads: 30,
+  tiktok: 30,
+  youtube: 15,
+};
 
 export function formatFollowers(n: number): string {
   if (typeof n !== 'number' || Number.isNaN(n)) return '0';

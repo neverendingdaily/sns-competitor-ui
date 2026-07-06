@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Account, Platform, SearchFilters } from '@/types';
+import { DEFAULT_MAX_RESULTS } from '@/types';
 import { useSearch } from '@/hooks/useSearch';
 import { PlatformSelector } from './PlatformSelector';
 import { SearchForm } from './SearchForm';
@@ -10,6 +11,7 @@ import { AccountDetailModal } from '@/components/detail/AccountDetailModal';
 export function SearchPage() {
   const [platform, setPlatform] = useState<Platform>('x');
   const [filters, setFilters] = useState<SearchFilters>({});
+  const [maxResultsByPlatform, setMaxResultsByPlatform] = useState(DEFAULT_MAX_RESULTS);
   const [filterCollapsed, setFilterCollapsed] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
@@ -19,7 +21,12 @@ export function SearchPage() {
     <div className="search-page">
       {/* フィルターサイドバー */}
       <aside className={`search-sidebar${filterCollapsed ? ' collapsed' : ''}`}>
-        <FilterPanel filters={filters} onChange={setFilters} />
+        <FilterPanel
+          filters={filters}
+          onChange={setFilters}
+          maxResultsByPlatform={maxResultsByPlatform}
+          onChangeMaxResults={setMaxResultsByPlatform}
+        />
       </aside>
 
       {/* メインエリア */}
@@ -29,6 +36,7 @@ export function SearchPage() {
           <SearchForm
             platform={platform}
             filters={filters}
+            maxResults={maxResultsByPlatform[platform]}
             loading={state.status === 'loading'}
             onSearch={params => { void search(params); }}
             onToggleFilter={() => setFilterCollapsed(v => !v)}

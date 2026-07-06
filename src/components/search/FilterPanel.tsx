@@ -1,17 +1,25 @@
-import type { SearchFilters } from '@/types';
+import { PLATFORM_META } from '@/types';
+import type { MaxResultsByPlatform, SearchFilters } from '@/types';
 
 interface FilterPanelProps {
   filters: SearchFilters;
   onChange: (f: SearchFilters) => void;
+  maxResultsByPlatform: MaxResultsByPlatform;
+  onChangeMaxResults: (next: MaxResultsByPlatform) => void;
 }
 
-export function FilterPanel({ filters, onChange }: FilterPanelProps) {
+export function FilterPanel({ filters, onChange, maxResultsByPlatform, onChangeMaxResults }: FilterPanelProps) {
   function update(partial: Partial<SearchFilters>) {
     onChange({ ...filters, ...partial });
   }
 
   function clearAll() {
     onChange({});
+  }
+
+  function updateMaxResults(platform: keyof MaxResultsByPlatform, value: number) {
+    const clamped = Math.max(0, Math.min(50, Math.round(value)));
+    onChangeMaxResults({ ...maxResultsByPlatform, [platform]: clamped });
   }
 
   const hasFilters = Object.values(filters).some(v => v !== undefined && v !== '' && v !== false);
@@ -84,6 +92,27 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
           />
           認証済みアカウントのみ
         </label>
+
+        <div className="form-group">
+          <label className="form-label">取得件数（上限・プラットフォーム別）</label>
+          {PLATFORM_META.map(p => (
+            <div key={p.id} className="form-range-row" style={{ marginBottom: '6px' }}>
+              <span style={{ flex: 1 }}>{p.emoji} {p.label}</span>
+              <input
+                className="form-input"
+                type="number"
+                min={0}
+                max={50}
+                style={{ width: '72px', flex: 'none' }}
+                value={maxResultsByPlatform[p.id]}
+                onChange={e => updateMaxResults(p.id, e.target.value ? Number(e.target.value) : 0)}
+              />
+            </div>
+          ))}
+          <div className="empty-state-desc" style={{ marginTop: '2px' }}>
+            0を指定するとそのプラットフォームの検索をスキップします
+          </div>
+        </div>
       </div>
     </>
   );

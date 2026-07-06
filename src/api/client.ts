@@ -89,6 +89,12 @@ async function parseAccountResponse(res: Response): Promise<Account> {
 }
 
 export async function searchAccounts(params: SearchParams): Promise<Account[]> {
+  if (params.maxResults === 0) {
+    // ユーザーがこのプラットフォームの取得件数を0に設定した＝検索をスキップする
+    // 意思表示。バックエンドへの通信自体を発生させず、成功・0件として即座に返す。
+    return [];
+  }
+
   const config = getConfig();
 
   if (config.useMock) {

@@ -25,6 +25,7 @@
   align-items: center;
   gap: 10px;
   margin-right: 32px;
+  text-decoration: none;
 }
 
 .header-logo-icon {

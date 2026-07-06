@@ -4,6 +4,7 @@ import type { Platform, QueryType, SearchFilters, SearchParams } from '@/types';
 interface SearchFormProps {
   platform: Platform;
   filters: SearchFilters;
+  maxResults: number;
   loading: boolean;
   onSearch: (params: SearchParams) => void;
   onToggleFilter: () => void;
@@ -17,13 +18,13 @@ const QUERY_TYPES: { value: QueryType; label: string }[] = [
   { value: 'username', label: 'ユーザー名' },
 ];
 
-export function SearchForm({ platform, filters, loading, onSearch, onToggleFilter, filterCollapsed }: SearchFormProps) {
+export function SearchForm({ platform, filters, maxResults, loading, onSearch, onToggleFilter, filterCollapsed }: SearchFormProps) {
   const [query, setQuery] = useState('');
   const [queryType, setQueryType] = useState<QueryType>('keyword');
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    onSearch({ platform, query, queryType, filters });
+    onSearch({ platform, query, queryType, filters, maxResults });
   }
 
   return (

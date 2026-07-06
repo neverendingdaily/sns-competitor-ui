@@ -31,5 +31,9 @@ export function mockSearch(params: SearchParams): Account[] {
   if (f.verifiedOnly) results = results.filter(a => a.isVerified);
   if (f.category) results = results.filter(a => a.category.toLowerCase() === f.category!.toLowerCase());
 
+  if (params.maxResults !== undefined) {
+    results = results.slice(0, params.maxResults);
+  }
+
   return results;
 }
