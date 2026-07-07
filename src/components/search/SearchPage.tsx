@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Navigate, useParams, useSearchParams } from 'react-router-dom';
-import type { Account, SearchFilters, SearchParams } from '@/types';
-import { DEFAULT_MAX_RESULTS, isPlatform } from '@/types';
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import type { Account, SearchFilters, SearchHistoryEntry, SearchParams } from '@/types';
+import { DEFAULT_MAX_RESULTS, isPlatform, isQueryType } from '@/types';
 import { useSearch } from '@/hooks/useSearch';
+import { getHistory, addHistoryEntry, clearHistory } from '@/store/settings';
 import { PlatformSelector } from './PlatformSelector';
 import { SearchForm } from './SearchForm';
+import { SearchHistoryRow } from './SearchHistoryRow';
 import { FilterPanel } from './FilterPanel';
 import { ResultsPage } from '@/components/results/ResultsPage';
 import { AccountDetailModal } from '@/components/detail/AccountDetailModal';
@@ -12,22 +14,31 @@ import { AccountDetailModal } from '@/components/detail/AccountDetailModal';
 export function SearchPage() {
   const { platform: platformParam } = useParams<{ platform: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const [filters, setFilters] = useState<SearchFilters>({});
   const [maxResultsByPlatform, setMaxResultsByPlatform] = useState(DEFAULT_MAX_RESULTS);
   const [filterCollapsed, setFilterCollapsed] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [history, setHistory] = useState<SearchHistoryEntry[]>(() => getHistory());
 
   const { state, search, clear } = useSearch();
 
   const platform = isPlatform(platformParam) ? platformParam : 'x';
   const urlQuery = searchParams.get('q') ?? '';
+  const urlQueryType = isQueryType(searchParams.get('type')) ? searchParams.get('type')! : 'keyword';
+
+  function recordHistory(params: SearchParams) {
+    setHistory(addHistoryEntry({ platform: params.platform, query: params.query, queryType: params.queryType }));
+  }
 
   // プラットフォーム切替（URL遷移）時: URLにキーワードがあれば自動検索、なければ結果をクリア
   useEffect(() => {
     if (!isPlatform(platformParam)) return;
     if (urlQuery) {
-      void search({ platform, query: urlQuery, queryType: 'keyword', filters, maxResults: maxResultsByPlatform[platform] });
+      const params: SearchParams = { platform, query: urlQuery, queryType: urlQueryType, filters, maxResults: maxResultsByPlatform[platform] };
+      void search(params);
+      recordHistory(params);
     } else {
       clear();
     }
@@ -40,8 +51,21 @@ export function SearchPage() {
   }
 
   function handleSearch(params: SearchParams) {
+    recordHistory(params);
     void search(params);
-    setSearchParams(params.query ? { q: params.query } : {});
+    setSearchParams(params.query ? { q: params.query, type: params.queryType } : {});
+  }
+
+  function handleHistorySelect(entry: SearchHistoryEntry) {
+    if (entry.platform === platform) {
+      handleSearch({ platform, query: entry.query, queryType: entry.queryType, filters, maxResults: maxResultsByPlatform[platform] });
+    } else {
+      navigate(`/${entry.platform}?q=${encodeURIComponent(entry.query)}&type=${entry.queryType}`);
+    }
+  }
+
+  function handleHistoryClear() {
+    setHistory(clearHistory());
   }
 
   return (
@@ -59,10 +83,11 @@ export function SearchPage() {
       {/* メインエリア */}
       <div className="search-main">
         <div className="search-top">
-          <PlatformSelector value={platform} query={urlQuery} />
+          <PlatformSelector value={platform} query={urlQuery} queryType={urlQueryType} />
           <SearchForm
             platform={platform}
             initialQuery={urlQuery}
+            initialQueryType={urlQueryType}
             filters={filters}
             maxResults={maxResultsByPlatform[platform]}
             loading={state.status === 'loading'}
@@ -70,6 +95,7 @@ export function SearchPage() {
             onToggleFilter={() => setFilterCollapsed(v => !v)}
             filterCollapsed={filterCollapsed}
           />
+          <SearchHistoryRow history={history} onSelect={handleHistorySelect} onClear={handleHistoryClear} />
         </div>
 
         <div className="search-results-area">

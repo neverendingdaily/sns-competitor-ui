@@ -5,6 +5,8 @@ interface SearchFormProps {
   platform: Platform;
   /** URL(?q=)由来の初期キーワード。プラットフォーム切替やブックマーク読み込み時に入力欄へ反映する */
   initialQuery: string;
+  /** URL(?type=)や履歴クリック由来の初期検索種別 */
+  initialQueryType: QueryType;
   filters: SearchFilters;
   maxResults: number;
   loading: boolean;
@@ -20,13 +22,14 @@ const QUERY_TYPES: { value: QueryType; label: string }[] = [
   { value: 'username', label: 'ユーザー名' },
 ];
 
-export function SearchForm({ platform, initialQuery, filters, maxResults, loading, onSearch, onToggleFilter, filterCollapsed }: SearchFormProps) {
+export function SearchForm({ platform, initialQuery, initialQueryType, filters, maxResults, loading, onSearch, onToggleFilter, filterCollapsed }: SearchFormProps) {
   const [query, setQuery] = useState(initialQuery);
-  const [queryType, setQueryType] = useState<QueryType>('keyword');
+  const [queryType, setQueryType] = useState<QueryType>(initialQueryType);
 
   useEffect(() => {
     setQuery(initialQuery);
-  }, [initialQuery]);
+    setQueryType(initialQueryType);
+  }, [initialQuery, initialQueryType]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

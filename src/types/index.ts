@@ -39,6 +39,14 @@ export interface SearchFilters {
   category?: string;
 }
 
+export interface SearchHistoryEntry {
+  id: string;
+  platform: Platform;
+  query: string;
+  queryType: QueryType;
+  searchedAt: string;
+}
+
 export interface ApiConfig {
   baseUrl: string;
   apiKey?: string;
@@ -81,6 +89,13 @@ export const PLATFORM_IDS: Platform[] = PLATFORM_META.map(p => p.id);
 // URLの:platformパラメータが有効なPlatformかどうかを判定する（不正な値は/xへリダイレクト）
 export function isPlatform(value: string | undefined): value is Platform {
   return !!value && (PLATFORM_IDS as string[]).includes(value);
+}
+
+export const QUERY_TYPE_VALUES: QueryType[] = ['keyword', 'hashtag', 'category', 'username'];
+
+// URLの?typeパラメータが有効なQueryTypeかどうかを判定する（不正・未指定はkeyword扱い）
+export function isQueryType(value: string | null | undefined): value is QueryType {
+  return !!value && (QUERY_TYPE_VALUES as string[]).includes(value);
 }
 
 export type MaxResultsByPlatform = Record<Platform, number>;
