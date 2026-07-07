@@ -1,34 +1,36 @@
-import type { AppPage } from '@/types';
+import { Link, useLocation } from 'react-router-dom';
+import { isPlatform } from '@/types';
 import { getConfig } from '@/store/settings';
 
-interface HeaderProps {
-  activePage: AppPage;
-  onNav: (page: AppPage) => void;
-}
-
-export function Header({ activePage, onNav }: HeaderProps) {
+export function Header() {
   const isMock = getConfig().useMock;
+  const location = useLocation();
+
+  const currentSegment = location.pathname.slice(1).split('/')[0];
+  const isOnPlatformPage = isPlatform(currentSegment);
+  const isSettings = location.pathname === '/settings';
+  const searchHref = isOnPlatformPage ? `${location.pathname}${location.search}` : '/x';
 
   return (
     <header className="header">
-      <a className="header-logo" href={import.meta.env.BASE_URL}>
+      <Link className="header-logo" to="/x">
         <span className="header-logo-icon">🔍</span>
         <span className="header-logo-text">SNS <span>競合リサーチ</span></span>
-      </a>
+      </Link>
 
       <nav className="header-nav">
-        <button
-          className={`header-nav-btn${activePage === 'search' ? ' active' : ''}`}
-          onClick={() => onNav('search')}
+        <Link
+          className={`header-nav-btn${!isSettings ? ' active' : ''}`}
+          to={searchHref}
         >
           🔎 検索
-        </button>
-        <button
-          className={`header-nav-btn${activePage === 'settings' ? ' active' : ''}`}
-          onClick={() => onNav('settings')}
+        </Link>
+        <Link
+          className={`header-nav-btn${isSettings ? ' active' : ''}`}
+          to="/settings"
         >
           ⚙️ 設定
-        </button>
+        </Link>
       </nav>
 
       <div className="header-right">

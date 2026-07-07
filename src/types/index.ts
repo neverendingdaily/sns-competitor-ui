@@ -2,7 +2,6 @@ export type Platform = 'x' | 'threads' | 'instagram' | 'tiktok' | 'youtube';
 export type QueryType = 'keyword' | 'hashtag' | 'category' | 'username';
 export type SortField = 'followers' | 'engagement' | 'posts' | 'lastPosted';
 export type SortOrder = 'asc' | 'desc';
-export type AppPage = 'search' | 'settings';
 export type SearchStatus = 'idle' | 'loading' | 'success' | 'error';
 export type ExportFormat = 'csv' | 'json';
 
@@ -75,6 +74,13 @@ export const PLATFORM_META: PlatformMeta[] = [
 
 export function getPlatformMeta(platform: Platform): PlatformMeta {
   return PLATFORM_META.find(p => p.id === platform)!;
+}
+
+export const PLATFORM_IDS: Platform[] = PLATFORM_META.map(p => p.id);
+
+// URLの:platformパラメータが有効なPlatformかどうかを判定する（不正な値は/xへリダイレクト）
+export function isPlatform(value: string | undefined): value is Platform {
+  return !!value && (PLATFORM_IDS as string[]).includes(value);
 }
 
 export type MaxResultsByPlatform = Record<Platform, number>;

@@ -1,22 +1,40 @@
-import { useState } from 'react';
-import type { AppPage } from '@/types';
+import { HashRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { ErrorBoundary } from '@/components/layout/ErrorBoundary';
 import { SearchPage } from '@/components/search/SearchPage';
 import { SettingsPage } from '@/components/settings/SettingsPage';
 
-export function App() {
-  const [activePage, setActivePage] = useState<AppPage>('search');
-
+function PlatformRoute() {
+  // プラットフォーム切替（URL遷移）時にErrorBoundaryの状態もリセットする
+  const { platform } = useParams<{ platform: string }>();
   return (
-    <div className="app-shell">
-      <Header activePage={activePage} onNav={setActivePage} />
-      <main className="main-content">
-        {/* keyでページ切替時にバウンダリの状態をリセットする */}
-        <ErrorBoundary key={activePage}>
-          {activePage === 'search' ? <SearchPage /> : <SettingsPage />}
-        </ErrorBoundary>
-      </main>
-    </div>
+    <ErrorBoundary key={platform}>
+      <SearchPage />
+    </ErrorBoundary>
+  );
+}
+
+export function App() {
+  return (
+    <HashRouter>
+      <div className="app-shell">
+        <Header />
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<Navigate to="/x" replace />} />
+            <Route
+              path="/settings"
+              element={
+                <ErrorBoundary key="settings">
+                  <SettingsPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route path="/:platform" element={<PlatformRoute />} />
+            <Route path="*" element={<Navigate to="/x" replace />} />
+          </Routes>
+        </main>
+      </div>
+    </HashRouter>
   );
 }

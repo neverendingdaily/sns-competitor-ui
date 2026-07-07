@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Platform, QueryType, SearchFilters, SearchParams } from '@/types';
 
 interface SearchFormProps {
   platform: Platform;
+  /** URL(?q=)由来の初期キーワード。プラットフォーム切替やブックマーク読み込み時に入力欄へ反映する */
+  initialQuery: string;
   filters: SearchFilters;
   maxResults: number;
   loading: boolean;
@@ -18,9 +20,13 @@ const QUERY_TYPES: { value: QueryType; label: string }[] = [
   { value: 'username', label: 'ユーザー名' },
 ];
 
-export function SearchForm({ platform, filters, maxResults, loading, onSearch, onToggleFilter, filterCollapsed }: SearchFormProps) {
-  const [query, setQuery] = useState('');
+export function SearchForm({ platform, initialQuery, filters, maxResults, loading, onSearch, onToggleFilter, filterCollapsed }: SearchFormProps) {
+  const [query, setQuery] = useState(initialQuery);
   const [queryType, setQueryType] = useState<QueryType>('keyword');
+
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
