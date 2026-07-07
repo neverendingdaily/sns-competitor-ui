@@ -1,6 +1,6 @@
 export type Platform = 'x' | 'threads' | 'instagram' | 'tiktok' | 'youtube';
 export type QueryType = 'keyword' | 'hashtag' | 'category' | 'username';
-export type SortField = 'followers' | 'engagement' | 'posts' | 'lastPosted';
+export type SortField = 'lastPosted';
 export type SortOrder = 'asc' | 'desc';
 export type SearchStatus = 'idle' | 'loading' | 'success' | 'error';
 export type ExportFormat = 'csv' | 'json';

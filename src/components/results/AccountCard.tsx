@@ -1,5 +1,5 @@
 import type { Account } from '@/types';
-import { getPlatformMeta, formatFollowers, formatDate, formatPercent, formatCount } from '@/types';
+import { getPlatformMeta, formatDate } from '@/types';
 
 interface AccountCardProps {
   account: Account;
@@ -12,7 +12,14 @@ export function AccountCard({ account: a, onClick }: AccountCardProps) {
   return (
     <tr className="account-row" onClick={() => onClick(a)}>
       <td>
-        <div className="account-cell-user">
+        {/* アカウント名クリックで直接SNSへ遷移。行クリック(詳細モーダル)とは独立させる */}
+        <a
+          href={a.profileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="account-cell-user"
+          onClick={e => e.stopPropagation()}
+        >
           <img
             src={a.avatarUrl}
             alt=""
@@ -30,7 +37,7 @@ export function AccountCard({ account: a, onClick }: AccountCardProps) {
             </div>
             <div className="account-displayname">{a.displayName}</div>
           </div>
-        </div>
+        </a>
       </td>
       <td>
         <span
@@ -41,28 +48,21 @@ export function AccountCard({ account: a, onClick }: AccountCardProps) {
         </span>
       </td>
       <td>
-        <div className="account-metric">{formatFollowers(a.followers)}</div>
-      </td>
-      <td>
-        <div className="account-metric">{formatPercent(a.engagementRate, 1)}%</div>
-      </td>
-      <td>
-        <div className="account-metric-muted">{formatCount(a.postsCount)}</div>
+        {a.category && (
+          <span
+            className="badge"
+            style={{
+              background: 'var(--color-surface-2)',
+              color: 'var(--color-text-muted)',
+              fontSize: 'var(--text-xs)',
+            }}
+          >
+            {a.category}
+          </span>
+        )}
       </td>
       <td>
         <div className="account-metric-muted">{formatDate(a.lastPostedAt)}</div>
-      </td>
-      <td>
-        <span
-          className="badge"
-          style={{
-            background: 'var(--color-surface-2)',
-            color: 'var(--color-text-muted)',
-            fontSize: 'var(--text-xs)',
-          }}
-        >
-          {a.category}
-        </span>
       </td>
     </tr>
   );

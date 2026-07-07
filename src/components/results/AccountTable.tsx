@@ -13,15 +13,18 @@ export function AccountTable({ accounts, sortState, onSort, onSelect }: AccountT
   return (
     <div className="table-wrapper">
       <table className="data-table">
+        <colgroup>
+          <col style={{ width: '46%' }} />
+          <col style={{ width: '16%' }} />
+          <col style={{ width: '20%' }} />
+          <col style={{ width: '18%' }} />
+        </colgroup>
         <thead>
           <tr>
             <th>アカウント</th>
             <th>プラットフォーム</th>
-            <SortHeader field="followers"   label="フォロワー"    current={sortState} onSort={onSort} />
-            <SortHeader field="engagement"  label="エンゲ率"      current={sortState} onSort={onSort} />
-            <SortHeader field="posts"       label="投稿数"        current={sortState} onSort={onSort} />
-            <SortHeader field="lastPosted"  label="最終投稿"      current={sortState} onSort={onSort} />
             <th>カテゴリ</th>
+            <SortHeader field="lastPosted" label="最終投稿日" current={sortState} onSort={onSort} />
           </tr>
         </thead>
         <tbody>

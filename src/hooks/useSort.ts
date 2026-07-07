@@ -1,16 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
 import type { Account, SortField, SortOrder, SortState } from '@/types';
 
-const INITIAL_SORT: SortState = { field: 'followers', order: 'desc' };
+const INITIAL_SORT: SortState = { field: 'lastPosted', order: 'desc' };
 
-function compareAccounts(a: Account, b: Account, field: SortField, order: SortOrder): number {
-  let diff = 0;
-  switch (field) {
-    case 'followers':   diff = a.followers - b.followers; break;
-    case 'engagement':  diff = a.engagementRate - b.engagementRate; break;
-    case 'posts':       diff = a.postsCount - b.postsCount; break;
-    case 'lastPosted':  diff = a.lastPostedAt.localeCompare(b.lastPostedAt); break;
-  }
+function compareAccounts(a: Account, b: Account, order: SortOrder): number {
+  const diff = a.lastPostedAt.localeCompare(b.lastPostedAt);
   return order === 'asc' ? diff : -diff;
 }
 
@@ -26,7 +20,7 @@ export function useSort(accounts: Account[]) {
   }, []);
 
   const sortedAccounts = useMemo(
-    () => [...accounts].sort((a, b) => compareAccounts(a, b, sortState.field, sortState.order)),
+    () => [...accounts].sort((a, b) => compareAccounts(a, b, sortState.order)),
     [accounts, sortState]
   );
 
