@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-
 import type { Account, SearchFilters, SearchHistoryEntry, SearchParams } from '@/types';
 import { DEFAULT_MAX_RESULTS, isPlatform, isQueryType } from '@/types';
 import { useSearch } from '@/hooks/useSearch';
-import { getHistory, addHistoryEntry, clearHistory } from '@/store/settings';
+import { subscribeHistory, addHistoryEntry, clearHistory } from '@/store/history';
 import { PlatformSelector } from './PlatformSelector';
 import { SearchForm } from './SearchForm';
 import { SearchHistoryRow } from './SearchHistoryRow';
@@ -20,7 +20,7 @@ export function SearchPage() {
   const [maxResultsByPlatform, setMaxResultsByPlatform] = useState(DEFAULT_MAX_RESULTS);
   const [filterCollapsed, setFilterCollapsed] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-  const [history, setHistory] = useState<SearchHistoryEntry[]>(() => getHistory());
+  const [history, setHistory] = useState<SearchHistoryEntry[]>([]);
 
   const { state, search, clear } = useSearch();
 
@@ -28,8 +28,14 @@ export function SearchPage() {
   const urlQuery = searchParams.get('q') ?? '';
   const urlQueryType = isQueryType(searchParams.get('type')) ? searchParams.get('type')! : 'keyword';
 
+  // Firestore上の検索履歴をリアルタイム購読する（マウント時に1度だけ）
+  useEffect(() => {
+    const unsubscribe = subscribeHistory(setHistory);
+    return unsubscribe;
+  }, []);
+
   function recordHistory(params: SearchParams) {
-    setHistory(addHistoryEntry({ platform: params.platform, query: params.query, queryType: params.queryType }));
+    void addHistoryEntry({ platform: params.platform, query: params.query, queryType: params.queryType });
   }
 
   // プラットフォーム切替（URL遷移）時: URLにキーワードがあれば自動検索、なければ結果をクリア
@@ -65,7 +71,7 @@ export function SearchPage() {
   }
 
   function handleHistoryClear() {
-    setHistory(clearHistory());
+    void clearHistory();
   }
 
   return (
